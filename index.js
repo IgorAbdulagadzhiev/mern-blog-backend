@@ -7,6 +7,8 @@ import { registerValidation, loginValidation } from './validations/auth.js';
 import checkAuth from './utils/checkAuth.js';
 
 import * as UserController from './controllers/UserController.js';
+import * as PostController from './controllers/PostController.js';
+
 
 const PORT = 4444;
 const URL =
@@ -25,6 +27,9 @@ app.get('/', (req, res) => {
   res.send('Hello world!');
 });
 
+app.post('/posts',checkAuth, postCreateValidation, PostController.create);
+
+// auth
 app.get('/auth/me', checkAuth, UserController.getMe);
 
 app.post('/auth/login', loginValidation, UserController.login);
