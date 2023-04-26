@@ -3,6 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 
 import { registerValidation, loginValidation } from './validations/auth.js';
+import { postCreateValidation } from './validations/post.js';
 
 import checkAuth from './utils/checkAuth.js';
 
@@ -27,13 +28,15 @@ app.get('/', (req, res) => {
   res.send('Hello world!');
 });
 
+app.get('/posts', PostController.getAll);
+// app.get('/posts/:id', PostController.getOne);
 app.post('/posts',checkAuth, postCreateValidation, PostController.create);
+// app.delete('/posts', PostController.remove);
+// app.patch('/posts', PostController.update);
 
 // auth
 app.get('/auth/me', checkAuth, UserController.getMe);
-
 app.post('/auth/login', loginValidation, UserController.login);
-
 app.post('/auth/register', registerValidation, UserController.register);
 
 app.listen(PORT, (err) => {
