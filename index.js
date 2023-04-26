@@ -1,37 +1,59 @@
-import express from "express";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import mongoose from "mongoose";
-import { validationResult } from "express-validator";
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
+import { validationResult } from 'express-validator';
 
-import { registerValidation } from "./validations/auth.js";
+import { registerValidation } from './validations/auth.js';
 
-import UserModel from "./models/User.js";
+import UserModel from './models/User.js';
+import checkAuth from './utils/checkAuth.js';
 
 const PORT = 4444;
 const URL =
-  "mongodb+srv://admin:wwwwww@cluster0.jnk34.mongodb.net/blog?retryWrites=true&w=majority";
+  'mongodb+srv://admin:wwwwww@cluster0.jnk34.mongodb.net/blog?retryWrites=true&w=majority';
 
 mongoose
   .connect(URL)
-  .then(() => console.log("DB ok"))
-  .catch(() => console.log("DB error", err));
+  .then(() => console.log('DB ok'))
+  .catch(() => console.log('DB error', err));
 
 const app = express();
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello world!");
+app.get('/', (req, res) => {
+  res.send('Hello world!');
 });
 
-app.post("/auth/login", async (req, res) => {
+app.get('/auth/me', checkAuth, async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'Пользователь не найден',
+      });
+    }
+
+    const { passwordHash, ...userData } = user._doc;
+
+    res.json(userData);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Не удалось получить пользователя',
+    });
+  }
+});
+
+app.post('/auth/login', async (req, res) => {
   try {
     const user = await UserModel.findOne({ email: req.body.email });
 
     if (!user) {
       return res.status(404).json({
-        message: "Пользователь не найден",
+        message: 'Пользователь не найден',
       });
     }
 
@@ -41,8 +63,8 @@ app.post("/auth/login", async (req, res) => {
     );
 
     if (!isValidPass) {
-      return res.status(404).json({
-        message: "Неверный логин или пароль",
+      return res.status(400).json({
+        message: 'Неверный логин или пароль',
       });
     }
 
@@ -50,9 +72,9 @@ app.post("/auth/login", async (req, res) => {
       {
         _id: user._id,
       },
-      "secret123",
+      'secret123',
       {
-        expiresIn: "30d",
+        expiresIn: '30d',
       }
     );
 
@@ -65,12 +87,12 @@ app.post("/auth/login", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: "Не удалось авторизоваться",
+      message: 'Не удалось авторизоваться',
     });
   }
 });
 
-app.post("/auth/register", registerValidation, async (req, res) => {
+app.post('/auth/register', registerValidation, async (req, res) => {
   try {
     const errors = validationResult(req);
 
@@ -95,9 +117,9 @@ app.post("/auth/register", registerValidation, async (req, res) => {
       {
         _id: user._id,
       },
-      "secret123",
+      'secret123',
       {
-        expiresIn: "30d",
+        expiresIn: '30d',
       }
     );
 
@@ -110,7 +132,7 @@ app.post("/auth/register", registerValidation, async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: "Не удалось зарегистрироваться",
+      message: 'Не удалось зарегистрироваться',
     });
   }
 });
@@ -120,5 +142,5 @@ app.listen(PORT, (err) => {
     return console.log(err);
   }
 
-  console.log("Server OK");
+  console.log('Server OK');
 });
