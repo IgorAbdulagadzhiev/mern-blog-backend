@@ -6,13 +6,16 @@ import { validationResult } from 'express-validator';
 
 import { registerValidation } from './validations/auth.js';
 
-import UserModel from './models/User.js'
+import UserModel from './models/User.js';
 
-mongoose.connect(
-  'mongodb+srv://admin:wwwwww@cluster0.jnk34.mongodb.net/blog?retryWrites=true&w=majority'
-).then(() => {
-  console.log('DB ok')
-}).catch(() => console.log("DB error", err));
+const PORT = 4444;
+const URL =
+  "mongodb+srv://admin:wwwwww@cluster0.jnk34.mongodb.net/blog?retryWrites=true&w=majority";
+
+mongoose
+  .connect(URL)
+  .then(() => console.log("DB ok"))
+  .catch(() => console.log("DB error", err));
 
 const app = express();
 
@@ -68,7 +71,7 @@ app.post("/auth/register", registerValidation, async (req, res) => {
 
 });
 
-app.listen(4444, (err) => {
+app.listen(PORT, (err) => {
   if (err) {
     return console.log(err);
   }
