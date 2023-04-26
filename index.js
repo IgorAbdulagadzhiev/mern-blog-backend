@@ -1,12 +1,12 @@
 import express from "express";
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import mongoose from 'mongoose';
-import { validationResult } from 'express-validator';
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import mongoose from "mongoose";
+import { validationResult } from "express-validator";
 
-import { registerValidation } from './validations/auth.js';
+import { registerValidation } from "./validations/auth.js";
 
-import UserModel from './models/User.js';
+import UserModel from "./models/User.js";
 
 const PORT = 4444;
 const URL =
@@ -25,8 +25,52 @@ app.get("/", (req, res) => {
   res.send("Hello world!");
 });
 
-app.post("/auth/register", registerValidation, async (req, res) => {
+app.post("/auth/login", async (req, res) => {
+  try {
+    const user = await UserModel.findOne({ email: req.body.email });
 
+    if (!user) {
+      return res.status(404).json({
+        message: "Пользователь не найден",
+      });
+    }
+
+    const isValidPass = await bcrypt.compare(
+      req.body.password,
+      user._doc.passwordHash
+    );
+
+    if (!isValidPass) {
+      return res.status(404).json({
+        message: "Неверный логин или пароль",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        _id: user._id,
+      },
+      "secret123",
+      {
+        expiresIn: "30d",
+      }
+    );
+
+    const { hash, ...userData } = user._doc;
+
+    res.json({
+      ...userData,
+      token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Не удалось авторизоваться",
+    });
+  }
+});
+
+app.post("/auth/register", registerValidation, async (req, res) => {
   try {
     const errors = validationResult(req);
 
@@ -47,28 +91,28 @@ app.post("/auth/register", registerValidation, async (req, res) => {
 
     const user = await doc.save();
 
-    const token = jwt.sign({
-      _id: user._id,
-    },
-    'secret123',
-    {
-      expiresIn: '30d',
-    });
+    const token = jwt.sign(
+      {
+        _id: user._id,
+      },
+      "secret123",
+      {
+        expiresIn: "30d",
+      }
+    );
 
-    const { hash, ...userData} = user._doc;
+    const { hash, ...userData } = user._doc;
 
     res.json({
       ...userData,
       token,
     });
   } catch (error) {
-    console.log(err);
+    console.log(error);
     res.status(500).json({
-      message: 'Не удалось зарегистрироваться',
-
+      message: "Не удалось зарегистрироваться",
     });
   }
-
 });
 
 app.listen(PORT, (err) => {
