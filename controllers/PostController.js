@@ -11,7 +11,45 @@ export const getAll = async (req, res) => {
       message: 'Не удалось получить статьи',
     });
   }
-}
+};
+
+export const getOne = async (req, res) => {
+  try {
+    const postId = req.params.id;
+
+    try {
+      const doc = await PostModel.findOneAndUpdate(
+        {
+          _id: postId,
+        },
+        {
+          $inc: { viewsCount: 1 },
+        },
+        {
+          returnDocument: 'after',
+        }
+      );
+
+      if (!doc) {
+        return res.status(404).json({
+          message: 'Статья не найдена',
+        });
+      }
+
+      res.json(doc);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: 'Не удалось получить статью',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Не удалось получить статью',
+    });
+  }
+};
 
 export const create = async (req, res) => {
   try {
@@ -32,4 +70,4 @@ export const create = async (req, res) => {
       message: 'Не удалось создать статью',
     });
   }
-}
+};
