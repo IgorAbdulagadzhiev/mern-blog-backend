@@ -2,11 +2,11 @@ import express from 'express';
 
 import mongoose from 'mongoose';
 
-import { registerValidation } from './validations/auth.js';
+import { registerValidation, loginValidation } from './validations/auth.js';
 
 import checkAuth from './utils/checkAuth.js';
 
-import * as userController from './controllers/UserController.js';
+import * as UserController from './controllers/UserController.js';
 
 const PORT = 4444;
 const URL =
@@ -25,11 +25,11 @@ app.get('/', (req, res) => {
   res.send('Hello world!');
 });
 
-app.get('/auth/me', checkAuth, userController.getMe);
+app.get('/auth/me', checkAuth, UserController.getMe);
 
-app.post('/auth/login', userController.login);
+app.post('/auth/login', loginValidation, UserController.login);
 
-app.post('/auth/register', registerValidation, userController.register);
+app.post('/auth/register', registerValidation, UserController.register);
 
 app.listen(PORT, (err) => {
   if (err) {
