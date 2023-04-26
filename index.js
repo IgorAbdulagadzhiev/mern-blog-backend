@@ -10,7 +10,6 @@ import checkAuth from './utils/checkAuth.js';
 import * as UserController from './controllers/UserController.js';
 import * as PostController from './controllers/PostController.js';
 
-
 const PORT = 4444;
 const URL =
   'mongodb+srv://admin:wwwwww@cluster0.jnk34.mongodb.net/blog?retryWrites=true&w=majority';
@@ -30,9 +29,9 @@ app.get('/', (req, res) => {
 
 app.get('/posts', PostController.getAll);
 app.get('/posts/:id', PostController.getOne);
-app.post('/posts',checkAuth, postCreateValidation, PostController.create);
-// app.delete('/posts', PostController.remove);
-// app.patch('/posts', PostController.update);
+app.post('/posts', checkAuth, postCreateValidation, PostController.create);
+app.delete('/posts/:id', checkAuth, PostController.remove);
+app.patch('/posts/:id', checkAuth, PostController.update);
 
 // auth
 app.get('/auth/me', checkAuth, UserController.getMe);
