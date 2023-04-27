@@ -3,12 +3,8 @@ import multer from 'multer';
 
 import mongoose from 'mongoose';
 
-import { registerValidation, loginValidation } from './validations/auth.js';
-import { checkAuth, handleValidationErrors } from './utils/index.js';
-import { postCreateValidation } from './validations/post.js';
-
-import { UserController, PostController } from './controllers/index.js';
-import { PORT, URL } from './utils/consts.js';
+import { PORT, URL } from '#utils/consts.js';
+import { postsRouter, authRouter } from '#routes/index.js';
 
 mongoose
   .connect(URL)
@@ -29,7 +25,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {
   res.send('Hello world!');
@@ -41,40 +36,12 @@ app.post('/upload', upload.single('image'), (req, res) => {
     url: `/uploads/${req.file.originalname}`,
   });
 });
-
+app.use('/uploads', express.static('uploads'));
 // posts
-app.get('/posts', PostController.getAll);
-app.get('/posts/:id', PostController.getOne);
-app.post(
-  '/posts',
-  checkAuth,
-  postCreateValidation,
-  handleValidationErrors,
-  PostController.create
-);
-app.delete('/posts/:id', checkAuth, PostController.remove);
-app.patch(
-  '/posts/:id',
-  checkAuth,
-  postCreateValidation,
-  handleValidationErrors,
-  PostController.update
-);
+app.use('/posts', postsRouter);
 
 // auth
-app.get('/auth/me', checkAuth, UserController.getMe);
-app.post(
-  '/auth/login',
-  loginValidation,
-  handleValidationErrors,
-  UserController.login
-);
-app.post(
-  '/auth/register',
-  registerValidation,
-  handleValidationErrors,
-  UserController.register
-);
+app.use('/auth', authRouter);
 
 app.listen(PORT, (err) => {
   if (err) {

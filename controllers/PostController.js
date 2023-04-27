@@ -1,4 +1,4 @@
-import PostModel from '../models/Post.js';
+import PostModel from '#models/Post.js';
 
 export const getAll = async (req, res) => {
   try {
@@ -110,7 +110,7 @@ export const update = async (req, res) => {
 
     try {
       // TODO: может тут достаточно delete?
-        await PostModel.updateOne(
+      await PostModel.updateOne(
         {
           _id: postId,
         },
@@ -120,11 +120,11 @@ export const update = async (req, res) => {
           imageUrl: req.body.imageUrl,
           tags: req.body.tags,
           user: req.userId,
-        },
+        }
       );
 
       res.json({
-        success: true
+        success: true,
       });
     } catch (error) {
       console.log(error);
