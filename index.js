@@ -8,10 +8,7 @@ import { checkAuth, handleValidationErrors } from './utils/index.js';
 import { postCreateValidation } from './validations/post.js';
 
 import { UserController, PostController } from './controllers/index.js';
-
-const PORT = 4444;
-const URL =
-  'mongodb+srv://admin:wwwwww@cluster0.jnk34.mongodb.net/blog?retryWrites=true&w=majority';
+import { PORT, URL } from './utils/consts.js';
 
 mongoose
   .connect(URL)
