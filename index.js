@@ -1,10 +1,11 @@
 import express from 'express';
 import multer from 'multer';
+import cors from 'cors';
 
 import mongoose from 'mongoose';
 
 import { PORT, URL } from '#utils/consts.js';
-import { postsRouter, authRouter } from '#routes/index.js';
+import { postsRouter, authRouter, tagsRouter } from '#routes/index.js';
 
 mongoose
   .connect(URL)
@@ -25,6 +26,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.use(express.json());
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('Hello world!');
@@ -39,6 +41,9 @@ app.post('/upload', upload.single('image'), (req, res) => {
 app.use('/uploads', express.static('uploads'));
 // posts
 app.use('/posts', postsRouter);
+
+// tags
+app.use('/tags', tagsRouter);
 
 // auth
 app.use('/auth', authRouter);
