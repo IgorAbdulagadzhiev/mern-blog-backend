@@ -8,7 +8,7 @@ const postsRouter = express.Router();
 postsRouter.get('/', PostController.getAll);
 postsRouter.get('/:id', PostController.getOne);
 postsRouter.post(
-  '/:id',
+  '/',
   checkAuth,
   postCreateValidation,
   handleValidationErrors,
